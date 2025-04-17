@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Othello - Trang chủ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            background-color: #2e8b57;
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        .piece {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fff 0%, #fff 50%, #000 50%, #000 100%);
+        }
+
+        .logo h1 {
+            color: #2e8b57;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info span {
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #277249;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #2e8b57;
+            color: #2e8b57;
+        }
+
+        .btn-outline:hover {
+            background-color: #f0f9f5;
+        }
+
+        .hero {
+            background-color: white;
+            border-radius: 10px;
+            padding: 50px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .hero h2 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .game-options {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .game-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            min-width: 250px;
+            max-width: 350px;
+            transition: transform 0.3s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .game-icon {
+            background-color: #f0f9f5;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+        }
+
+        .game-card h3 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .game-card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            background-color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        footer p {
+            color: #666;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="logo">
+            <div class="logo-img">
+                <div class="piece"></div>
+            </div>
+            <h1>OTHELLO</h1>
+        </div>
+
+        <div class="user-info">
+            <!-- Hiển thị thông tin người dùng nếu đã đăng nhập -->
+            <div th:if="${member != null}">
+                <span th:text="${'Xin chào, ' + member.username + ' | ELO: ' + member.elo}">Xin chào, User | ELO: 1000</span>
+                <a href="/logout" class="btn btn-outline">Đăng xuất</a>
+            </div>
+
+            <!-- Hiển thị nút đăng nhập/đăng ký nếu chưa đăng nhập -->
+            <div th:if="${member == null}">
+                <a href="/login" class="btn">Đăng nhập</a>
+                <a href="/register" class="btn btn-outline">Đăng ký</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h2>Chào mừng đến với Othello Online</h2>
+        <p>Trải nghiệm trò chơi chiến thuật kinh điển với đối thủ từ khắp nơi hoặc thách đấu với AI thông minh.</p>
+
+        <div th:if="${member != null}">
+            <a href="/play.html" class="btn">Bắt đầu chơi ngay</a>
+        </div>
+        <div th:if="${member == null}">
+            <a href="/login" class="btn">Đăng nhập để chơi</a>
+        </div>
+    </div>
+
+    <div class="game-options">
+        <div class="game-card">
+            <div class="game-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2e8b57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                </svg>
+            </div>
+            <h3>Chơi với máy</h3>
+            <p>Thách đấu với AI có nhiều cấp độ khác nhau để rèn luyện kỹ năng của bạn.</p>
+            <a href="/play-with-computer" class="btn">Chơi ngay</a>
+        </div>
+
+        <div class="game-card">
+            <div class="game-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2e8b57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <h3>Chơi với người</h3>
+            <p>Tìm đối thủ trực tuyến và so tài với những người chơi khác từ khắp nơi.</p>
+            <a href="/play.html" class="btn">Tìm đối thủ</a>
+        </div>
+
+        <div class="game-card">
+            <div class="game-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2e8b57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="7"></circle>
+                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                </svg>
+            </div>
+            <h3>Giải đấu</h3>
+            <p>Tham gia hoặc tạo các giải đấu để thử thách và nâng cao thứ hạng của bạn.</p>
+            <a href="/tournament.html" class="btn">Xem giải đấu</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Othello Online. Tất cả các quyền được bảo lưu.</p>
+    </footer>
+</div>
+</body>
+</html>
