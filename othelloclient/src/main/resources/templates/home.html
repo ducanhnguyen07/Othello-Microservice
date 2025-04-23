@@ -176,6 +176,54 @@
             color: #666;
             margin: 0;
         }
+
+        .feature-section {
+            margin-top: 40px;
+        }
+
+        .feature-section h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .feature-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: calc(33.33% - 20px);
+            min-width: 300px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            color: #2e8b57;
+            font-size: 30px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -238,7 +286,7 @@
             </div>
             <h3>Chơi với người</h3>
             <p>Tìm đối thủ trực tuyến và so tài với những người chơi khác từ khắp nơi.</p>
-            <a href="/play.html" class="btn">Tìm đối thủ</a>
+            <a href="/find-player" class="btn">Tìm đối thủ</a>
         </div>
 
         <div class="game-card">
@@ -251,6 +299,32 @@
             <h3>Giải đấu</h3>
             <p>Tham gia hoặc tạo các giải đấu để thử thách và nâng cao thứ hạng của bạn.</p>
             <a href="/tournament.html" class="btn">Xem giải đấu</a>
+        </div>
+    </div>
+
+    <div class="feature-section">
+        <h2>Tính năng mới</h2>
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🎮</div>
+                <h3>Tạo phòng chơi riêng</h3>
+                <p>Tạo phòng chơi riêng và mời bạn bè tham gia bằng mã phòng. Thiết lập thời gian mỗi lượt đi và bắt đầu trò chơi khi sẵn sàng.</p>
+                <a href="/create-room" class="btn">Tạo phòng</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Tham gia phòng chơi</h3>
+                <p>Tham gia phòng chơi bằng cách nhập mã phòng được chia sẻ từ bạn bè. Nhanh chóng và dễ dàng để vào phòng.</p>
+                <a href="/join-room" class="btn">Tham gia phòng</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🏆</div>
+                <h3>Xếp hạng ELO</h3>
+                <p>Hệ thống xếp hạng ELO giúp bạn theo dõi tiến trình và so sánh kỹ năng với người chơi khác. Thắng để tăng điểm xếp hạng của bạn.</p>
+                <a href="#" class="btn">Bảng xếp hạng</a>
+            </div>
         </div>
     </div>
 

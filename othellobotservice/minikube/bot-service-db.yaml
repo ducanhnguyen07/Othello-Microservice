@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bot-service-db  # Đảm bảo tên này khớp với hostname trong application.properties
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: bot-service-db
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bot-service-db
+spec:
+  serviceName: "bot-service-db"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bot-service-db
+  template:
+    metadata:
+      labels:
+        app: bot-service-db
+    spec:
+      containers:
+        - name: bot-service-db
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "1234"
+            - name: MYSQL_DATABASE
+              value: "bot-service-db"
+            - name: MYSQL_USER
+              value: "user"
+            - name: MYSQL_PASSWORD
+              value: "1234"
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi

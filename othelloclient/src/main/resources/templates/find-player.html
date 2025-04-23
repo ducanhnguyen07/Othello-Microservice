@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Othello - Find Players</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            background-color: #2e8b57;
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        .piece {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fff 0%, #fff 50%, #000 50%, #000 100%);
+        }
+
+        .logo h1 {
+            color: #2e8b57;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info span {
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #277249;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #2e8b57;
+            color: #2e8b57;
+        }
+
+        .btn-outline:hover {
+            background-color: #f0f9f5;
+        }
+
+        .content-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .content-section h2 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .player-list {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .player-list th, .player-list td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .player-list th {
+            background-color: #f0f9f5;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .player-list tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .challenge-btn {
+            padding: 6px 12px;
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .challenge-btn:hover {
+            background-color: #277249;
+        }
+
+        .search-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .search-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            font-size: 16px;
+        }
+
+        .search-container button {
+            padding: 10px 15px;
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-online {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-offline {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .refresh-btn {
+            display: block;
+            margin: 20px auto 0;
+            padding: 8px 20px;
+        }
+
+        footer {
+            background-color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        footer p {
+            color: #666;
+            margin: 0;
+        }
+
+        #messageBox {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .message-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .message-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .message-content {
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="logo">
+            <div class="logo-img">
+                <div class="piece"></div>
+            </div>
+            <h1>OTHELLO</h1>
+        </div>
+
+        <div class="user-info">
+            <!-- Hiển thị thông tin người dùng nếu đã đăng nhập -->
+            <div th:if="${member != null}">
+                <span th:text="${'Xin chào, ' + member.username + ' | ELO: ' + member.elo}">Xin chào, User | ELO: 1000</span>
+                <a href="/logout" class="btn btn-outline">Đăng xuất</a>
+            </div>
+
+            <!-- Hiển thị nút đăng nhập/đăng ký nếu chưa đăng nhập -->
+            <div th:if="${member == null}">
+                <a href="/login" class="btn">Đăng nhập</a>
+                <a href="/register" class="btn btn-outline">Đăng ký</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="content-section">
+        <h2>Tìm đối thủ</h2>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên người chơi...">
+            <button onclick="searchPlayers()">Tìm kiếm</button>
+        </div>
+
+        <table class="player-list">
+            <thead>
+            <tr>
+                <th>Tên người chơi</th>
+                <th>ELO</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody id="playerTableBody">
+            <!-- Danh sách người chơi sẽ được cập nhật bằng JavaScript -->
+            </tbody>
+        </table>
+
+        <button class="btn refresh-btn" onclick="loadPlayers()">Làm mới danh sách</button>
+    </div>
+
+    <!-- Hộp thông báo thách đấu -->
+    <div id="overlay"></div>
+    <div id="messageBox">
+        <div class="message-title">Thách đấu</div>
+        <div class="message-content" id="messageContent">Bạn có muốn thách đấu người chơi này?</div>
+        <div class="message-buttons">
+            <button class="btn" id="acceptButton">Đồng ý</button>
+            <button class="btn btn-outline" id="declineButton">Từ chối</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Othello Online. Tất cả các quyền được bảo lưu.</p>
+    </footer>
+</div>
+
+<script>
+    let selectedPlayerId = null;
+
+    // Load danh sách người chơi khi trang được tải
+    window.onload = function() {
+        loadPlayers();
+
+        // Kiểm tra xem có thách đấu mới không mỗi 10 giây
+        setInterval(checkForChallenges, 10000);
+    };
+
+    // Tải danh sách người chơi từ server
+    async function loadPlayers() {
+        try {
+            const response = await fetch('/api/players/online');
+            const players = await response.json();
+
+            updatePlayerList(players);
+        } catch (error) {
+            console.error('Error loading players:', error);
+        }
+    }
+
+    // Cập nhật danh sách người chơi trong bảng
+    function updatePlayerList(players) {
+        const tableBody = document.getElementById('playerTableBody');
+        tableBody.innerHTML = '';
+
+        if (players.length === 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = '<td colspan="4" style="text-align: center;">Không có người chơi trực tuyến</td>';
+            tableBody.appendChild(row);
+            return;
+        }
+
+        players.forEach(player => {
+            const row = document.createElement('tr');
+
+            const statusClass = player.online ? 'status-online' : 'status-offline';
+            const statusText = player.online ? 'Trực tuyến' : 'Ngoại tuyến';
+
+            row.innerHTML = `
+                <td>${player.username}</td>
+                <td>${player.elo}</td>
+                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                <td>
+                    <button class="challenge-btn" onclick="challengePlayer(${player.id}, '${player.username}')" 
+                            ${!player.online ? 'disabled' : ''}>Thách đấu</button>
+                </td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Tìm kiếm người chơi
+    async function searchPlayers() {
+        const searchTerm = document.getElementById('searchInput').value;
+
+        try {
+            const response = await fetch(`/api/players/search?username=${searchTerm}`);
+            const players = await response.json();
+
+            updatePlayerList(players);
+        } catch (error) {
+            console.error('Error searching players:', error);
+        }
+    }
+
+    // Hiển thị hộp thông báo thách đấu
+    function challengePlayer(playerId, playerName) {
+        selectedPlayerId = playerId;
+
+        document.getElementById('messageContent').textContent = `Bạn có muốn thách đấu người chơi ${playerName}?`;
+        document.getElementById('overlay').style.display = 'block';
+        document.getElementById('messageBox').style.display = 'block';
+
+        document.getElementById('acceptButton').onclick = function() {
+            sendChallenge(playerId);
+            closeMessageBox();
+        };
+
+        document.getElementById('declineButton').onclick = closeMessageBox;
+    }
+
+    // Đóng hộp thông báo
+    function closeMessageBox() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('messageBox').style.display = 'none';
+    }
+
+    // Gửi thách đấu đến người chơi
+    async function sendChallenge(playerId) {
+        try {
+            const response = await fetch('/api/game/challenge', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    challengedPlayerId: playerId
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Đã gửi lời thách đấu! Đang chờ phản hồi...');
+                // Bắt đầu kiểm tra phản hồi
+                checkChallengeResponse(result.challengeId);
+            } else {
+                alert('Không thể gửi lời thách đấu: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error sending challenge:', error);
+            alert('Đã xảy ra lỗi khi gửi lời thách đấu');
+        }
+    }
+
+    // Kiểm tra phản hồi cho thách đấu đã gửi
+    async function checkChallengeResponse(challengeId) {
+        // Kiểm tra mỗi 3 giây
+        const checkInterval = setInterval(async () => {
+            try {
+                const response = await fetch(`/api/game/challenge/${challengeId}/status`);
+                const status = await response.json();
+
+                if (status.status === 'ACCEPTED') {
+                    clearInterval(checkInterval);
+                    alert('Đối thủ đã chấp nhận lời thách đấu! Bạn sẽ được chuyển đến trò chơi...');
+                    window.location.href = `/play-multiplayer/${status.gameId}`;
+                } else if (status.status === 'REJECTED') {
+                    clearInterval(checkInterval);
+                    alert('Đối thủ đã từ chối lời thách đấu.');
+                } else if (status.status === 'EXPIRED') {
+                    clearInterval(checkInterval);
+                    alert('Lời thách đấu đã hết hạn.');
+                }
+                // Nếu status là 'PENDING', tiếp tục kiểm tra
+
+            } catch (error) {
+                console.error('Error checking challenge response:', error);
+                clearInterval(checkInterval);
+            }
+        }, 3000);
+
+        // Dừng kiểm tra sau 2 phút nếu không có phản hồi
+        setTimeout(() => {
+            clearInterval(checkInterval);
+        }, 120000);
+    }
+
+    // Kiểm tra các thách đấu mới
+    async function checkForChallenges() {
+        try {
+            const response = await fetch('/api/game/challenges/incoming');
+            const challenges = await response.json();
+
+            if (challenges.length > 0) {
+                // Lấy thách đấu mới nhất
+                const latestChallenge = challenges[0];
+
+                if (confirm(`${latestChallenge.challengerName} muốn thách đấu bạn. Chấp nhận?`)) {
+                    acceptChallenge(latestChallenge.id);
+                } else {
+                    rejectChallenge(latestChallenge.id);
+                }
+            }
+        } catch (error) {
+            console.error('Error checking for challenges:', error);
+        }
+    }
+
+    // Chấp nhận thách đấu
+    async function acceptChallenge(challengeId) {
+        try {
+            const response = await fetch(`/api/game/challenge/${challengeId}/accept`, {
+                method: 'POST'
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Đã chấp nhận lời thách đấu! Bắt đầu trò chơi...');
+                window.location.href = `/play-multiplayer/${result.gameId}`;
+            } else {
+                alert('Không thể chấp nhận lời thách đấu: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error accepting challenge:', error);
+            alert('Đã xảy ra lỗi khi chấp nhận lời thách đấu');
+        }
+    }
+
+    // Từ chối thách đấu
+    async function rejectChallenge(challengeId) {
+        try {
+            await fetch(`/api/game/challenge/${challengeId}/reject`, {
+                method: 'POST'
+            });
+        } catch (error) {
+            console.error('Error rejecting challenge:', error);
+        }
+    }
+</script>
+</body>
+</html>

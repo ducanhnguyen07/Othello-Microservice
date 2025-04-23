@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Othello - Phòng chơi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            background-color: #2e8b57;
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        .piece {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fff 0%, #fff 50%, #000 50%, #000 100%);
+        }
+
+        .logo h1 {
+            color: #2e8b57;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info span {
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .room-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .room-details {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            flex: 1;
+        }
+
+        .room-header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .room-header h2 {
+            color: #333;
+            margin: 0 0 5px;
+        }
+
+        .room-code {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .room-code span {
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .room-status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            background-color: #f0f9f5;
+            color: #2e8b57;
+        }
+
+        .players-list {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            flex: 1;
+        }
+
+        .players-list h3 {
+            margin-top: 0;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .player-card {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .player-card:hover {
+            transform: translateX(5px);
+        }
+
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #ddd;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-weight: bold;
+            font-size: 18px;
+            color: #555;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .player-elo {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .host-badge {
+            padding: 3px 8px;
+            background-color: #f0f9f5;
+            color: #2e8b57;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #277249;
+        }
+
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e9e9e9;
+        }
+
+        .chat-box {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            height: 250px;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            max-width: 80%;
+            word-break: break-word;
+        }
+
+        .message.self {
+            background-color: #e3f2fd;
+            margin-left: auto;
+        }
+
+        .message.other {
+            background-color: #f1f1f1;
+        }
+
+        .message .sender {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .message .text {
+            font-size: 15px;
+        }
+
+        .message .time {
+            font-size: 12px;
+            color: #888;
+            text-align: right;
+            margin-top: 3px;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .chat-input button {
+            padding: 10px 15px;
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .countdown {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2e8b57;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="logo">
+            <div class="logo-img">
+                <div class="piece"></div>
+            </div>
+            <h1>OTHELLO</h1>
+        </div>
+
+        <div class="user-info">
+            <span th:text="${'Xin chào, ' + member.username}">Xin chào, User</span>
+        </div>
+    </header>
+
+    <div class="room-container">
+        <div class="room-details">
+            <div class="room-header">
+                <h2 th:text="${room.name}">Tên phòng</h2>
+                <div class="room-code">Mã phòng: <span th:text="${room.roomCode}">ABCD1234</span></div>
+            </div>
+
+            <div class="room-status" th:text="${room.status == 'WAITING' ? 'Đang chờ người chơi' : 'Sẵn sàng bắt đầu'}">
+                Đang chờ người chơi
+            </div>
+
+            <div>
+                <p>Thời gian mỗi lượt: <strong th:text="${room.timeLimit + ' giây'}">60 giây</strong></p>
+                <p>Loại phòng: <strong th:text="${room.isPrivate ? 'Riêng tư' : 'Công khai'}">Riêng tư</strong></p>
+                <p>Người tạo: <strong th:text="${room.host.username}">Host</strong></p>
+            </div>
+
+            <div id="countdown" class="countdown"></div>
+
+            <div class="action-buttons">
+                <button id="startGameBtn" class="btn" onclick="startGame()"
+                        th:disabled="${room.host.id != member.id || room.players.size() < 2}"
+                        th:style="${room.host.id != member.id ? 'display: none;' : ''}">
+                    Bắt đầu trận đấu
+                </button>
+                <button class="btn btn-secondary" onclick="leaveRoom()">Rời phòng</button>
+                <button class="btn" onclick="copyRoomCode()">Sao chép mã phòng</button>
+            </div>
+        </div>
+
+        <div class="players-list">
+            <h3>Người chơi (<span id="playerCount" th:text="${room.players.size()}">0</span>/2)</h3>
+
+            <div id="playersList">
+                <!-- Player cards will be generated here -->
+                <div th:each="player : ${room.players}" class="player-card">
+                    <div class="player-avatar" th:text="${player.username.substring(0, 1).toUpperCase()}">U</div>
+                    <div class="player-info">
+                        <div class="player-name">
+                            <span th:text="${player.username}">Username</span>
+                            <span th:if="${player.id == room.host.id}" class="host-badge">Chủ phòng</span>
+                        </div>
+                        <div class="player-elo">ELO: <span th:text="${player.elo}">1000</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-box">
+        <div id="chatMessages" class="chat-messages">
+            <!-- Messages will be added here -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
+            <button onclick="sendMessage()">Gửi</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // Variables
+    const roomId = [[${room.id}]];
+    const iAmHost = [[${room.host.id == member.id}]];
+    const myUsername = [[${member.username}]];
+    let pollingInterval;
+    let gameStartCountdown = null;
+
+    // Initialize
+    window.onload = function() {
+        // Start polling for room updates
+        pollingInterval = setInterval(pollRoomStatus, 3000);
+
+        // Set up message input
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Load initial chat messages
+        loadChatMessages();
+
+        // Start chat polling
+        setInterval(loadChatMessages, 3000);
+    };
+
+    // Poll for room status updates
+    async function pollRoomStatus() {
+        try {
+            const response = await fetch(`/api/game/room/${roomId}/status`);
+            const data = await response.json();
+
+            if (data.status === 'STARTING') {
+                // Game is starting
+                handleGameStarting(data.gameId, data.countdown);
+            } else if (data.status === 'PLAYING') {
+                // Game has started, redirect to game
+                clearInterval(pollingInterval);
+                window.location.href = `/play-multiplayer/${data.gameId}`;
+            } else {
+                // Update player list
+                updatePlayersList(data.players);
+            }
+        } catch (error) {
+            console.error('Error polling room status:', error);
+        }
+    }
+
+    // Update the players list
+    function updatePlayersList(players) {
+        const playersList = document.getElementById('playersList');
+        const playerCount = document.getElementById('playerCount');
+
+        // Update player count
+        playerCount.textContent = players.length;
+
+        // Update start button state
+        const startButton = document.getElementById('startGameBtn');
+        if (startButton && iAmHost) {
+            startButton.disabled = players.length < 2;
+        }
+
+        // Update room status
+        const roomStatus = document.querySelector('.room-status');
+        roomStatus.textContent = players.length < 2 ? 'Đang chờ người chơi' : 'Sẵn sàng bắt đầu';
+
+        // Only rebuild player list if needed
+        if (playersList.children.length !== players.length) {
+            playersList.innerHTML = '';
+
+            players.forEach(player => {
+                const playerCard = document.createElement('div');
+                playerCard.className = 'player-card';
+
+                const initial = player.username.substring(0, 1).toUpperCase();
+
+                playerCard.innerHTML = `
+                    <div class="player-avatar">${initial}</div>
+                    <div class="player-info">
+                        <div class="player-name">
+                            ${player.username}
+                            ${player.isHost ? '<span class="host-badge">Chủ phòng</span>' : ''}
+                        </div>
+                        <div class="player-elo">ELO: ${player.elo}</div>
+                    </div>
+                `;
+
+                playersList.appendChild(playerCard);
+            });
+        }
+    }
+
+    // Handle game starting countdown
+    function handleGameStarting(gameId, countdown) {
+        const countdownElement = document.getElementById('countdown');
+
+        if (!gameStartCountdown) {
+            countdownElement.style.display = 'block';
+            gameStartCountdown = countdown;
+
+            const countdownInterval = setInterval(() => {
+                gameStartCountdown--;
+                countdownElement.textContent = `Trận đấu sẽ bắt đầu sau ${gameStartCountdown} giây...`;
+
+                if (gameStartCountdown <= 0) {
+                    clearInterval(countdownInterval);
+                    window.location.href = `/play-multiplayer/${gameId}`;
+                }
+            }, 1000);
+        }
+    }
+
+    // Start the game
+    async function startGame() {
+        try {
+            const response = await fetch(`/api/game/room/${roomId}/start`, {
+                method: 'POST'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Game starting
+                handleGameStarting(data.gameId, data.countdown);
+            } else {
+                alert('Không thể bắt đầu trò chơi: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error starting game:', error);
+            alert('Đã xảy ra lỗi khi bắt đầu trò chơi');
+        }
+    }
+
+    // Leave the room
+    async function leaveRoom() {
+        if (!confirm('Bạn có chắc chắn muốn rời phòng không?')) {
+            return;
+        }
+
+        try {
+            await fetch(`/api/game/room/${roomId}/leave`, {
+                method: 'POST'
+            });
+
+            // Redirect to game selection
+            window.location.href = '/play.html';
+        } catch (error) {
+            console.error('Error leaving room:', error);
+            alert('Đã xảy ra lỗi khi rời phòng');
+        }
+    }
+
+    // Copy room code
+    function copyRoomCode() {
+        const roomCode = [[${room.roomCode}]];
+        navigator.clipboard.writeText(roomCode)
+            .then(() => {
+                alert('Đã sao chép mã phòng!');
+            })
+            .catch(err => {
+                console.error('Không thể sao chép mã phòng:', err);
+                alert('Không thể sao chép mã phòng. Vui lòng sao chép thủ công.');
+            });
+    }
+
+    // Load chat messages
+    async function loadChatMessages() {
+        try {
+            const response = await fetch(`/api/game/room/${roomId}/chat`);
+            const messages = await response.json();
+
+            updateChatMessages(messages);
+        } catch (error) {
+            console.error('Error loading chat messages:', error);
+        }
+    }
+
+    // Update chat UI
+    function updateChatMessages(messages) {
+        const chatMessages = document.getElementById('chatMessages');
+
+        // Check if we need to update (avoid flickering)
+        if (messages.length === 0 ||
+            (chatMessages.lastChild &&
+                chatMessages.lastChild.dataset.id === messages[messages.length-1].id.toString())) {
+            return;
+        }
+
+        // Clear current messages
+        chatMessages.innerHTML = '';
+
+        // Add each message
+        messages.forEach(msg => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${msg.sender.username === myUsername ? 'self' : 'other'}`;
+            messageDiv.dataset.id = msg.id;
+
+            const senderDiv = document.createElement('div');
+            senderDiv.className = 'sender';
+            senderDiv.textContent = msg.sender.username;
+
+            const textDiv = document.createElement('div');
+            textDiv.className = 'text';
+            textDiv.textContent = msg.message;
+
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'time';
+            timeDiv.textContent = new Date(msg.timestamp).toLocaleTimeString();
+
+            messageDiv.appendChild(senderDiv);
+            messageDiv.appendChild(textDiv);
+            messageDiv.appendChild(timeDiv);
+
+            chatMessages.appendChild(messageDiv);
+        });
+
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Send chat message
+    async function sendMessage() {
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value.trim();
+
+        if (!message) return;
+
+        try {
+            const response = await fetch(`/api/game/room/${roomId}/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message
+                })
+            });
+
+            if (response.ok) {
+                messageInput.value = '';
+                loadChatMessages();
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
+    }
+
+    // Clean up when leaving
+    window.onbeforeunload = function() {
+        clearInterval(pollingInterval);
+    };
+</script>
+</body>
+</html>
