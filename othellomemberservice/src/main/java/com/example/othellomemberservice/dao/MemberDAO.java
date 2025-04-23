@@ -187,4 +187,108 @@ public class MemberDAO extends MemberServiceDAO {
         return listFriend;
     }
 
+    /**
+     * friend websocket
+     */
+    public Member findById(int id) {
+        String sql = "SELECT * FROM Member WHERE id = ?";
+        try (Connection conn = this.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Member member = new Member();
+                    member.setId(rs.getInt("id"));
+                    member.setUsername(rs.getString("username"));
+                    member.setPassword(rs.getString("password"));
+                    member.setEmail(rs.getString("email"));
+                    member.setElo(rs.getInt("elo"));
+                    member.setStatus(rs.getInt("status"));
+                    return member;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<Member> searchPlayersByUsername(String username) {
+        String sql = "SELECT * FROM Member WHERE username LIKE ? LIMIT 20";
+        List<Member> results = new ArrayList<>();
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, "%" + username + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Member member = new Member();
+                    member.setId(rs.getInt("id"));
+                    member.setUsername(rs.getString("username"));
+                    member.setPassword(rs.getString("password"));
+                    member.setEmail(rs.getString("email"));
+                    member.setElo(rs.getInt("elo"));
+                    member.setStatus(rs.getInt("status"));
+
+                    results.add(member);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+    public List<Member> getInvitationRequest(Member member) throws SQLException {
+        String sql = """
+            SELECT m.*
+            FROM friendinvitation f
+            JOIN member m ON f.requestId = m.id
+            WHERE f.status = 'PENDING'
+            	and f.receiveId = ?;
+        """;
+
+        List<Member> listInvitationRequest = new ArrayList<>();
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, member.getId());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Member friend = new Member();
+                    friend.setId(rs.getInt("id"));
+                    friend.setUsername(rs.getString("username"));
+                    friend.setPassword(rs.getString("password"));
+                    friend.setEmail(rs.getString("email"));
+                    friend.setElo(rs.getInt("elo"));
+                    friend.setStatus(rs.getInt("status"));
+                    listInvitationRequest.add(friend);
+                }
+            }
+        }
+        return listInvitationRequest;
+    }
+
+    public boolean removeFriend(int memberId, int friendId) throws SQLException {
+        String sql = "DELETE FROM friendinvitation WHERE " +
+                "((requestId = ? AND receiveId = ?) OR (requestId = ? AND receiveId = ?)) " +
+                "AND status = 'ACCEPTED'";
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, memberId);
+            ps.setInt(2, friendId);
+            ps.setInt(3, friendId);
+            ps.setInt(4, memberId);
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
 }

@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Othello - Friends</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: white;
+      padding: 15px 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-img {
+      background-color: #2e8b57;
+      width: 40px;
+      height: 40px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 10px;
+    }
+
+    .piece {
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fff 0%, #fff 50%, #000 50%, #000 100%);
+    }
+
+    .logo h1 {
+      color: #2e8b57;
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+    }
+
+    .user-info span {
+      margin-right: 15px;
+      font-weight: bold;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 8px 15px;
+      background-color: #2e8b57;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #277249;
+    }
+
+    .content-section {
+      background-color: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    .search-container {
+      display: flex;
+      margin-bottom: 20px;
+    }
+
+    .search-container input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px 0 0 5px;
+      font-size: 16px;
+    }
+
+    .search-container button {
+      padding: 10px 15px;
+      background-color: #2e8b57;
+      color: white;
+      border: none;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+    }
+
+    .friends-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .friend-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      transition: background-color 0.2s;
+    }
+
+    .friend-item:hover {
+      background-color: #f9f9f9;
+    }
+
+    .friend-avatar {
+      width: 40px;
+      height: 40px;
+      background-color: #ddd;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 15px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .friend-info {
+      flex: 1;
+    }
+
+    .friend-name {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .friend-elo {
+      color: #777;
+      font-size: 14px;
+    }
+
+    .friend-status {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin-right: 10px;
+    }
+
+    .online {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .offline {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .friend-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .action-btn.challenge {
+      background-color: #2e8b57;
+      color: white;
+      border: none;
+    }
+
+    .action-btn.remove {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .pending-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .pending-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      background-color: #fff8e6;
+    }
+
+    .empty-message {
+      color: #777;
+      font-style: italic;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #notifications-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      width: 300px;
+    }
+
+    .notification {
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      padding: 15px;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .notification-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .search-results {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .search-results .section-title {
+      font-size: 18px;
+      color: #555;
+    }
+
+    .player-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      transition: background-color 0.2s;
+    }
+
+    .player-item:hover {
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">
+      <div class="logo-img">
+        <div class="piece"></div>
+      </div>
+      <h1>OTHELLO</h1>
+    </div>
+
+    <div class="user-info">
+      <span th:text="${'Xin chào, ' + member.username + ' | ELO: ' + member.elo}">Xin chào, User | ELO: 1000</span>
+      <a href="/logout" class="btn">Đăng xuất</a>
+    </div>
+  </header>
+
+  <div class="content-section">
+    <h2 class="section-title">Danh sách bạn bè</h2>
+
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Tìm kiếm người chơi...">
+      <button onclick="searchPlayers()">Tìm kiếm</button>
+    </div>
+
+    <ul class="friends-list" id="friendsList">
+      <!-- Friends will be loaded dynamically -->
+      <li class="empty-message">Đang tải danh sách bạn bè...</li>
+    </ul>
+
+    <div class="search-results" id="searchResults">
+      <h3 class="section-title">Kết quả tìm kiếm</h3>
+      <div id="playersList"></div>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <h2 class="section-title">Lời mời kết bạn</h2>
+    <ul class="pending-list" id="pendingList">
+      <!-- Pending invitations will be loaded dynamically -->
+      <li class="empty-message">Đang tải lời mời kết bạn...</li>
+    </ul>
+  </div>
+
+  <div id="notifications-container">
+    <!-- Notifications will appear here -->
+  </div>
+
+  <div class="content-section">
+    <a href="/home" class="btn">Quay lại trang chủ</a>
+  </div>
+</div>
+
+<!-- Include SockJS and STOMP -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stomp-websocket@2.3.4/lib/stomp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+
+<!-- Include our WebSocket service -->
+<script th:src="@{/js/websocket.js}"></script>
+
+<script th:inline="javascript">
+  // User information
+  const currentUserId = [[${member.id}]];
+
+  // Initialize when page loads
+  window.onload = function() {
+    // Request notification permission
+    WebSocketService.requestNotificationPermission();
+
+    // Connect to WebSocket
+    WebSocketService.connect(currentUserId, handleNotification);
+
+    // Load friends list
+    loadFriendsList();
+
+    // Load pending invitations
+    loadPendingInvitations();
+  };
+
+  // Handle window unload to disconnect from WebSocket
+  window.addEventListener('beforeunload', function() {
+    WebSocketService.disconnect();
+  });
+
+  // Handle notifications
+  function handleNotification(notification) {
+    // This function will be called by the WebSocket service
+    // when a notification is received
+    console.log('Notification received:', notification);
+
+    // Refresh data based on notification type
+    if (notification.type === 'FRIEND_REQUEST') {
+      loadPendingInvitations();
+    } else if (notification.type === 'FRIEND_REQUEST_RESPONSE' && notification.status === 'ACCEPTED') {
+      loadFriendsList();
+    } else if (notification.type === 'FRIEND_STATUS_CHANGE') {
+      updateFriendStatus(notification);
+    }
+  }
+
+  // Load friends list
+  async function loadFriendsList() {
+    try {
+      const response = await fetch(`/api/friends/${currentUserId}`);
+      const friends = await response.json();
+
+      const friendsList = document.getElementById('friendsList');
+
+      if (friends.length === 0) {
+        friendsList.innerHTML = '<li class="empty-message">Bạn chưa có bạn bè nào</li>';
+        return;
+      }
+
+      friendsList.innerHTML = '';
+
+      friends.forEach(friend => {
+        const friendItem = document.createElement('li');
+        friendItem.className = 'friend-item';
+        friendItem.setAttribute('data-friend-id', friend.id);
+
+        const statusClass = friend.status === 1 ? 'online' : 'offline';
+        const statusText = friend.status === 1 ? 'Online' : 'Offline';
+
+        friendItem.innerHTML = `
+                    <div class="friend-avatar">${friend.username.charAt(0).toUpperCase()}</div>
+                    <div class="friend-info">
+                        <div class="friend-name">${friend.username}</div>
+                        <div class="friend-elo">ELO: ${friend.elo}</div>
+                    </div>
+                    <span class="friend-status ${statusClass}">${statusText}</span>
+                    <div class="friend-actions">
+                        <button class="action-btn challenge" onclick="challengeFriend(${friend.id})">Thách đấu</button>
+                        <button class="action-btn remove" onclick="removeFriend(${friend.id})">Xóa bạn</button>
+                    </div>
+                `;
+
+        friendsList.appendChild(friendItem);
+      });
+    } catch (error) {
+      console.error('Error loading friends list:', error);
+      document.getElementById('friendsList').innerHTML =
+              '<li class="empty-message">Lỗi khi tải danh sách bạn bè</li>';
+    }
+  }
+
+  // Load pending friend invitations
+  async function loadPendingInvitations() {
+    try {
+      const response = await fetch(`/friend-invitations/${currentUserId}`);
+      const invitations = await response.json();
+
+      const pendingList = document.getElementById('pendingList');
+
+      if (invitations.length === 0) {
+        pendingList.innerHTML = '<li class="empty-message">Không có lời mời kết bạn nào</li>';
+        return;
+      }
+
+      pendingList.innerHTML = '';
+
+      invitations.forEach(invitation => {
+        const invitationItem = document.createElement('li');
+        invitationItem.className = 'pending-item';
+        invitationItem.setAttribute('data-invitation-id', invitation.invitationId);
+
+        invitationItem.innerHTML = `
+                    <div class="friend-avatar">${invitation.username.charAt(0).toUpperCase()}</div>
+                    <div class="friend-info">
+                        <div class="friend-name">${invitation.username}</div>
+                        <div class="friend-elo">ELO: ${invitation.elo}</div>
+                    </div>
+                    <div class="friend-actions">
+                        <button class="action-btn challenge" onclick="acceptInvitation(${invitation.id})">Chấp nhận</button>
+                        <button class="action-btn remove" onclick="rejectInvitation(${invitation.id})">Từ chối</button>
+                    </div>
+                `;
+
+        pendingList.appendChild(invitationItem);
+      });
+    } catch (error) {
+      console.error('Error loading pending invitations:', error);
+      document.getElementById('pendingList').innerHTML =
+              '<li class="empty-message">Lỗi khi tải lời mời kết bạn</li>';
+    }
+  }
+
+  // Search for players
+  async function searchPlayers() {
+    const searchTerm = document.getElementById('searchInput').value.trim();
+
+    if (!searchTerm) {
+      alert('Vui lòng nhập tên người chơi để tìm kiếm');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/search-players?username=${searchTerm}`);
+      const players = await response.json();
+
+      const resultsContainer = document.getElementById('searchResults');
+      const playersList = document.getElementById('playersList');
+
+      // Show the results container
+      resultsContainer.style.display = 'block';
+
+      if (players.length === 0) {
+        playersList.innerHTML = '<div class="empty-message">Không tìm thấy người chơi nào</div>';
+        return;
+      }
+
+      playersList.innerHTML = '';
+
+      players.forEach(player => {
+        const playerItem = document.createElement('div');
+        playerItem.className = 'player-item';
+
+        let actionButton = '';
+
+        if (player.isFriend) {
+          actionButton = `<button class="action-btn remove" disabled>Đã là bạn</button>`;
+        } else if (player.pendingRequest) {
+          actionButton = `<button class="action-btn remove" disabled>Đã gửi lời mời</button>`;
+        } else {
+          actionButton = `<button class="action-btn challenge" onclick="sendFriendRequest(${player.id})">Kết bạn</button>`;
+        }
+
+        playerItem.innerHTML = `
+                    <div class="friend-avatar">${player.username.charAt(0).toUpperCase()}</div>
+                    <div class="friend-info">
+                        <div class="friend-name">${player.username}</div>
+                        <div class="friend-elo">ELO: ${player.elo}</div>
+                    </div>
+                    <div class="friend-actions">
+                        ${actionButton}
+                    </div>
+                `;
+
+        playersList.appendChild(playerItem);
+      });
+    } catch (error) {
+      console.error('Error searching players:', error);
+      document.getElementById('playersList').innerHTML =
+              '<div class="empty-message">Lỗi khi tìm kiếm người chơi</div>';
+    }
+  }
+
+  // Send a friend request
+  function sendFriendRequest(receiverId) {
+    // First try with WebSocket for real-time notification
+    const sent = WebSocketService.sendFriendRequest(receiverId);
+
+    if (!sent) {
+      // Fallback to REST API
+      sendFriendRequestViaREST(receiverId);
+    } else {
+      // Update UI
+      const button = event.target;
+      button.disabled = true;
+      button.textContent = 'Đã gửi lời mời';
+      button.className = 'action-btn remove';
+    }
+  }
+
+  // Send friend request via REST API (fallback)
+  async function sendFriendRequestViaREST(receiverId) {
+    try {
+      const response = await fetch('/member-service/send-friend-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          requesterId: currentUserId,
+          receiverId: receiverId
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Update UI
+        const button = event.target;
+        button.disabled = true;
+        button.textContent = 'Đã gửi lời mời';
+        button.className = 'action-btn remove';
+      } else {
+        alert(result.message || 'Lỗi khi gửi lời mời kết bạn');
+      }
+    } catch (error) {
+      console.error('Error sending friend request:', error);
+      alert('Đã xảy ra lỗi khi gửi lời mời kết bạn');
+    }
+  }
+
+  // Accept a friend invitation
+  function acceptInvitation(invitationId) {
+
+    // First try with WebSocket for real-time notification
+    const sent = WebSocketService.respondToFriendRequest(requestId, receiveId, 'ACCEPTED');
+
+    if (!sent) {
+      // Fallback to REST API
+      respondToInvitationViaREST(invitationId, 'ACCEPTED');
+    } else {
+      console.log(0)
+      // Remove invitation from UI
+      const invitationItem = document.querySelector(`.pending-item[data-invitation-id="${invitationId}"]`);
+      if (invitationItem) {
+        invitationItem.remove();
+      }
+
+      // Refresh the friends list
+      loadFriendsList();
+
+      // Check if no more invitations
+      const pendingList = document.getElementById('pendingList');
+      if (pendingList.children.length === 0) {
+        pendingList.innerHTML = '<li class="empty-message">Không có lời mời kết bạn nào</li>';
+      }
+    }
+  }
+
+  // Reject a friend invitation
+  function rejectInvitation(invitationId) {
+    // First try with WebSocket for real-time notification
+    const sent = WebSocketService.respondToFriendRequest(invitationId, 'REJECTED');
+
+    if (!sent) {
+      // Fallback to REST API
+      respondToInvitationViaREST(invitationId, 'REJECTED');
+    } else {
+      // Remove invitation from UI
+      const invitationItem = document.querySelector(`.pending-item[data-invitation-id="${invitationId}"]`);
+      if (invitationItem) {
+        invitationItem.remove();
+      }
+
+      // Check if no more invitations
+      const pendingList = document.getElementById('pendingList');
+      if (pendingList.children.length === 0) {
+        pendingList.innerHTML = '<li class="empty-message">Không có lời mời kết bạn nào</li>';
+      }
+    }
+  }
+
+  // Respond to invitation via REST API (fallback)
+  async function respondToInvitationViaREST(invitationId, status) {
+    try {
+      const response = await fetch('/member-service/respond-friend-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          invitationId: invitationId,
+          status: status
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Remove invitation from UI
+        const invitationItem = document.querySelector(`.pending-item[data-invitation-id="${invitationId}"]`);
+        if (invitationItem) {
+          invitationItem.remove();
+        }
+
+        // If accepted, refresh the friends list
+        if (status === 'ACCEPTED') {
+          loadFriendsList();
+        }
+
+        // Check if no more invitations
+        const pendingList = document.getElementById('pendingList');
+        if (pendingList.children.length === 0) {
+          pendingList.innerHTML = '<li class="empty-message">Không có lời mời kết bạn nào</li>';
+        }
+      } else {
+        alert(result.message || 'Lỗi khi phản hồi lời mời kết bạn');
+      }
+    } catch (error) {
+      console.error('Error responding to invitation:', error);
+      alert('Đã xảy ra lỗi khi phản hồi lời mời kết bạn');
+    }
+  }
+
+  // Remove a friend
+  async function removeFriend(friendId) {
+    if (!confirm('Bạn có chắc chắn muốn xóa người chơi này khỏi danh sách bạn bè?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/friends/${currentUserId}/${friendId}`, {
+        method: 'DELETE'
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Remove friend from UI
+        const friendItem = document.querySelector(`.friend-item[data-friend-id="${friendId}"]`);
+        if (friendItem) {
+          friendItem.remove();
+        }
+
+        // Check if no more friends
+        const friendsList = document.getElementById('friendsList');
+        if (friendsList.children.length === 0) {
+          friendsList.innerHTML = '<li class="empty-message">Bạn chưa có bạn bè nào</li>';
+        }
+      } else {
+        alert(result.message || 'Lỗi khi xóa bạn');
+      }
+    } catch (error) {
+      console.error('Error removing friend:', error);
+      alert('Đã xảy ra lỗi khi xóa bạn');
+    }
+  }
+
+  // Challenge a friend to a game
+  function challengeFriend(friendId) {
+    // Redirect to a page to create a game with this friend
+    window.location.href = `/create-game?opponent=${friendId}`;
+  }
+
+  // Update friend status in UI
+  function updateFriendStatus(notification) {
+    const friendItem = document.querySelector(`.friend-item[data-friend-id="${notification.userId}"]`);
+
+    if (friendItem) {
+      const statusElement = friendItem.querySelector('.friend-status');
+      if (statusElement) {
+        const isOnline = notification.status === 1;
+        statusElement.className = `friend-status ${isOnline ? 'online' : 'offline'}`;
+        statusElement.textContent = isOnline ? 'Online' : 'Offline';
+      }
+    }
+  }
+
+  // Make refreshFriendsList global for the websocket.js to call if needed
+  window.refreshFriendsList = loadFriendsList;
+</script>
+</body>
+</html>

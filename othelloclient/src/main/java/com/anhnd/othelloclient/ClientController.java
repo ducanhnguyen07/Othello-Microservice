@@ -226,54 +226,6 @@ public class ClientController {
         return "play-with-computer";
     }
 
-    @GetMapping("/join-room")
-    public String joinRoom(Model model, HttpSession session) {
-        // Kiểm tra đăng nhập trước khi cho phép tham gia phòng
-        if (session.getAttribute("loggedInMember") == null) {
-            return "redirect:/login";
-        }
-
-        model.addAttribute("member", session.getAttribute("loggedInMember"));
-        return "join-room";
-    }
-
-    @GetMapping("/play-room/{roomId}")
-    public String playRoom(@PathVariable String roomId, Model model, HttpSession session) {
-        // Kiểm tra đăng nhập
-        Member loggedInMember = (Member) session.getAttribute("loggedInMember");
-        if (loggedInMember == null) {
-            return "redirect:/login";
-        }
-
-        // Lấy thông tin phòng từ game service
-        String url = gameServiceUrl + "/api/game/room/" + roomId;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Member-Id", String.valueOf(loggedInMember.getId()));
-
-        HttpEntity<Void> request = new HttpEntity<>(headers);
-
-        try {
-            ResponseEntity<GameRoom> responseEntity = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    request,
-                    GameRoom.class
-            );
-
-            if (responseEntity.getStatusCode() != HttpStatus.OK) {
-                return "redirect:/play.html?error=invalid_room";
-            }
-
-            GameRoom room = responseEntity.getBody();
-            model.addAttribute("room", room);
-            model.addAttribute("member", loggedInMember);
-
-            return "play-room";
-        } catch (Exception e) {
-            return "redirect:/play.html?error=room_error";
-        }
-    }
 
     /**
      * REST endpoint cho client sử dụng để lấy trạng thái bàn cờ
@@ -464,20 +416,131 @@ public class ClientController {
         return "redirect:/play-with-computer";
     }
 
-    @GetMapping("/api/game/room/{roomId}/status")
-    @ResponseBody
-    public Map<String, Object> getRoomStatus(@PathVariable String roomId, HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
 
-        // Kiểm tra đăng nhập
+
+    @GetMapping("/friends")
+    public String showFriendsPage(Model model, HttpSession session) {
+        // Check if user is logged in
         Member loggedInMember = (Member) session.getAttribute("loggedInMember");
         if (loggedInMember == null) {
-            response.put("error", "Unauthorized");
+            return "redirect:/login";
+        }
+
+        model.addAttribute("member", loggedInMember);
+        return "friends";
+    }
+
+    @GetMapping("/api/friends/{userId}")
+    @ResponseBody
+    public List<Member> getFriends(@PathVariable int userId, HttpSession session) {
+        // Check if user is logged in
+        Member loggedInMember = (Member) session.getAttribute("loggedInMember");
+        if (loggedInMember == null) {
+            return new ArrayList<>();
+        }
+
+        // Call member service to get friends
+        String url = memberServiceUrl + "/api/friends/" + userId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Member-Id", String.valueOf(loggedInMember.getId()));
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<List<Member>> responseEntity = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    request,
+                    new ParameterizedTypeReference<List<Member>>() {}
+            );
+
+            return responseEntity.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @GetMapping("/api/search-players")
+    @ResponseBody
+    public List<Map<String, Object>> searchPlayers(@RequestParam String username, HttpSession session) {
+        // Check if user is logged in
+        Member loggedInMember = (Member) session.getAttribute("loggedInMember");
+        if (loggedInMember == null) {
+            return new ArrayList<>();
+        }
+
+        // Call member service to search players
+        String url = memberServiceUrl + "/api/search-players?username=" + username;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Member-Id", String.valueOf(loggedInMember.getId()));
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<List<Map<String, Object>>> responseEntity = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    request,
+                    new ParameterizedTypeReference<List<Map<String, Object>>>() {}
+            );
+
+            return responseEntity.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @GetMapping("/friend-invitations/{userId}")
+    @ResponseBody
+    public List<Member> getInvitationRequest(@PathVariable int userId, HttpSession session) {
+        // Check if user is logged in
+        Member loggedInMember = (Member) session.getAttribute("loggedInMember");
+        if (loggedInMember == null) {
+            return new ArrayList<>();
+        }
+
+        // Call member service to get friends
+        String url = memberServiceUrl + "/api/invitation-request/" + userId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Member-Id", String.valueOf(loggedInMember.getId()));
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<List<Member>> responseEntity = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    request,
+                    new ParameterizedTypeReference<List<Member>>() {}
+            );
+
+            return responseEntity.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @DeleteMapping("/api/friends/{userId}/{friendId}")
+    @ResponseBody
+    public Map<String, Object> removeFriend(@PathVariable int userId, @PathVariable int friendId, HttpSession session) {
+        // Check if user is logged in
+        Member loggedInMember = (Member) session.getAttribute("loggedInMember");
+        Map<String, Object> response = new HashMap<>();
+
+        if (loggedInMember == null || loggedInMember.getId() != userId) {
+            response.put("success", false);
+            response.put("message", "Unauthorized");
             return response;
         }
 
-        // Call game service
-        String url = gameServiceUrl + "/api/game/room/" + roomId + "/status";
+        // Call member service to remove friend
+        String url = memberServiceUrl + "/api/friends/" + userId + "/" + friendId;
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Member-Id", String.valueOf(loggedInMember.getId()));
@@ -487,80 +550,17 @@ public class ClientController {
         try {
             ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(
                     url,
-                    HttpMethod.GET,
+                    HttpMethod.DELETE,
                     request,
                     new ParameterizedTypeReference<Map<String, Object>>() {}
             );
 
             return responseEntity.getBody();
         } catch (Exception e) {
-            response.put("error", "Error fetching room status: " + e.getMessage());
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error removing friend: " + e.getMessage());
             return response;
-        }
-    }
-
-    @PostMapping("/api/game/room/{roomId}/chat")
-    @ResponseBody
-    public ResponseEntity<Void> sendRoomChatMessage(@PathVariable String roomId,
-                                                    @RequestBody Map<String, String> messageData,
-                                                    HttpSession session) {
-        // Kiểm tra đăng nhập
-        Member loggedInMember = (Member) session.getAttribute("loggedInMember");
-        if (loggedInMember == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        // Call game service
-        String url = gameServiceUrl + "/api/game/room/" + roomId + "/chat";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Member-Id", String.valueOf(loggedInMember.getId()));
-
-        HttpEntity<Map<String, String>> httpRequest = new HttpEntity<>(messageData, headers);
-
-        try {
-            ResponseEntity<Void> responseEntity = restTemplate.exchange(
-                    url,
-                    HttpMethod.POST,
-                    httpRequest,
-                    Void.class
-            );
-
-            return responseEntity;
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GetMapping("/api/game/room/{roomId}/chat")
-    @ResponseBody
-    public List<ChatMessage> getRoomChatMessages(@PathVariable String roomId, HttpSession session) {
-        // Kiểm tra đăng nhập
-        Member loggedInMember = (Member) session.getAttribute("loggedInMember");
-        if (loggedInMember == null) {
-            return new ArrayList<>();
-        }
-
-        // Call game service
-        String url = gameServiceUrl + "/api/game/room/" + roomId + "/chat";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Member-Id", String.valueOf(loggedInMember.getId()));
-
-        HttpEntity<Void> request = new HttpEntity<>(headers);
-
-        try {
-            ResponseEntity<List<ChatMessage>> responseEntity = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    request,
-                    new ParameterizedTypeReference<List<ChatMessage>>() {}
-            );
-
-            return responseEntity.getBody();
-        } catch (Exception e) {
-            return new ArrayList<>();
         }
     }
 
