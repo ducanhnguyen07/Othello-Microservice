@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class MemberDAO extends MemberServiceDAO {
@@ -60,6 +62,8 @@ public class MemberDAO extends MemberServiceDAO {
                     member.setPassword(rs.getString("password"));
                     member.setEmail(rs.getString("email"));
                     member.setElo(rs.getInt("elo"));
+                    member.setStatus(1);
+                    updateUserStatus(member);
                     return member;
                 }
             }
@@ -129,4 +133,58 @@ public class MemberDAO extends MemberServiceDAO {
         }
         return false;
     }
+
+    /**
+     * update user status
+     */
+    public boolean updateUserStatus(Member member) throws SQLException {
+        String sql = "UPDATE Member SET status = ? WHERE id = ?";
+        try (Connection conn = this.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, member.getStatus());
+            ps.setInt(2, member.getId());
+            // execute query
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+    /**
+     * get friend
+     */
+    public List<Member> getListFriend(Member member) throws SQLException {
+        String sql = """
+        SELECT m.*
+        FROM friendinvitation f
+        JOIN member m ON (f.requestId = m.id OR f.receiveId = m.id)
+        WHERE f.status = 'ACCEPTED' 
+          AND (f.requestId = ? OR f.receiveId = ?)
+          AND m.id != ?;
+    """;
+
+        List<Member> listFriend = new ArrayList<>();
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, member.getId());
+            ps.setInt(2, member.getId());
+            ps.setInt(3, member.getId());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Member friend = new Member();
+                    friend.setId(rs.getInt("id"));
+                    friend.setUsername(rs.getString("username"));
+                    friend.setPassword(rs.getString("password"));
+                    friend.setEmail(rs.getString("email"));
+                    friend.setElo(rs.getInt("elo"));
+                    friend.setStatus(rs.getInt("status"));
+                    listFriend.add(friend);
+                }
+            }
+        }
+        return listFriend;
+    }
+
 }

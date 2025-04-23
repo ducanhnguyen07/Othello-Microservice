@@ -154,36 +154,36 @@ public class MultiplayerGameController {
     /**
      * API endpoint to get online players
      */
-    @GetMapping("/api/players/online")
-    @ResponseBody
-    public List<Map<String, Object>> getOnlinePlayers(HttpSession session) {
-        // Check if user is logged in
-        Member loggedInMember = (Member) session.getAttribute("loggedInMember");
-        if (loggedInMember == null) {
-            return new ArrayList<>();
-        }
-
-        // Call game service to get online players
-        String url = gameServiceUrl + "/api/players/online";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Member-Id", String.valueOf(loggedInMember.getId()));
-
-        HttpEntity<Void> request = new HttpEntity<>(headers);
-
-        try {
-            ResponseEntity<List<Map<String, Object>>> responseEntity = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    request,
-                    new ParameterizedTypeReference<List<Map<String, Object>>>() {}
-            );
-
-            return responseEntity.getBody();
-        } catch (Exception e) {
-            return new ArrayList<>();
-        }
-    }
+//    @GetMapping("/api/players/online")
+//    @ResponseBody
+//    public List<Map<String, Object>> getOnlinePlayers(HttpSession session) {
+//        // Check if user is logged in
+//        Member loggedInMember = (Member) session.getAttribute("loggedInMember");
+//        if (loggedInMember == null) {
+//            return new ArrayList<>();
+//        }
+//
+//        // Call game service to get online players
+//        String url = gameServiceUrl + "/api/players/online";
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Member-Id", String.valueOf(loggedInMember.getId()));
+//
+//        HttpEntity<Void> request = new HttpEntity<>(headers);
+//
+//        try {
+//            ResponseEntity<List<Map<String, Object>>> responseEntity = restTemplate.exchange(
+//                    url,
+//                    HttpMethod.GET,
+//                    request,
+//                    new ParameterizedTypeReference<List<Map<String, Object>>>() {}
+//            );
+//
+//            return responseEntity.getBody();
+//        } catch (Exception e) {
+//            return new ArrayList<>();
+//        }
+//    }
 
     /**
      * API endpoint to search players by username

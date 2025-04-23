@@ -4,6 +4,10 @@ import com.example.othellomemberservice.dao.MemberDAO;
 import com.example.othellomemberservice.model.Member;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController()
 @RequestMapping("/api")
 public class MemberServiceController {
@@ -13,6 +17,19 @@ public class MemberServiceController {
         return new MemberDAO().authenticate(member);
     }
 
+    @PostMapping("/logout")
+    public boolean processLogout(@RequestBody Member member) throws SQLException {
+        member.setStatus(0);
+        return new MemberDAO().updateUserStatus(member);
+    }
+
+    @PostMapping("/online-player")
+    public List<Member> getOnlinePlayers(@RequestBody Member member) throws SQLException {
+        List<Member> listFriend = new MemberDAO().getListFriend(member);
+        return listFriend.stream()
+                .filter(friend -> friend.getStatus() == 1)
+                .collect(Collectors.toList());
+    }
 //    @PostMapping("/register")
 //    public String processRegistration(@ModelAttribute Member member,
 //                                      RedirectAttributes redirectAttributes) {

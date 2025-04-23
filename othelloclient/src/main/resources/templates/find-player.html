@@ -335,6 +335,7 @@
             const response = await fetch('/api/players/online');
             const players = await response.json();
 
+
             updatePlayerList(players);
         } catch (error) {
             console.error('Error loading players:', error);
@@ -357,7 +358,7 @@
             const row = document.createElement('tr');
 
             const statusClass = player.online ? 'status-online' : 'status-offline';
-            const statusText = player.online ? 'Trực tuyến' : 'Ngoại tuyến';
+            const statusText = player.status == 1 ? 'Trực tuyến' : 'Ngoại tuyến';
 
             row.innerHTML = `
                 <td>${player.username}</td>

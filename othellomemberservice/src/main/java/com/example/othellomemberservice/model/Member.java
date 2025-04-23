@@ -1,11 +1,15 @@
 package com.example.othellomemberservice.model;
 
+import java.util.Date;
+
 public class Member {
     private int id;
     private String username;
     private String password;
     private String email;
     private int elo;
+    private Date lastAccess;
+    private int status;
 
     public Member() {
     }
@@ -55,6 +59,22 @@ public class Member {
 
     public void setElo(int elo) {
         this.elo = elo;
+    }
+
+    public Date getLastAccess() {
+        return lastAccess;
+    }
+
+    public void setLastAccess(Date lastAccess) {
+        this.lastAccess = lastAccess;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }
 
