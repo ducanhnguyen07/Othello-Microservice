@@ -76,7 +76,7 @@ public class MemberServiceController {
             Map<String, Object> invitationDetails = new HashMap<>();
 
             // Get requester details
-            Member requester = memberDAO.findById(invitation.getRequestId());
+            Member requester = memberDAO.findById(invitation.getRequestMem().getId());
 
             if (requester != null) {
                 invitationDetails.put("invitationId", invitation.getId());
@@ -135,8 +135,8 @@ public class MemberServiceController {
 
         // Create new invitation
         FriendInvitation invitation = new FriendInvitation();
-        invitation.setRequestId(requesterId);
-        invitation.setReceiveId(receiverId);
+        invitation.setRequestMem(requester);
+        invitation.setReceiveMem(receiver);
         invitation.setStatus("PENDING");
         invitation.setTimeRequest(new Date());
 
@@ -209,7 +209,7 @@ public class MemberServiceController {
     }
 
     @GetMapping("/invitation-request/{userId}")
-    public List<Member> getInvitationRequest(@PathVariable int userId) {
+    public List<FriendInvitation> getInvitationRequest(@PathVariable int userId) {
         try {
             return memberDAO.getInvitationRequest(new Member(userId, null, null, null, 0));
         } catch (SQLException e) {
@@ -250,7 +250,7 @@ public class MemberServiceController {
 
                 // Check if there's a pending invitation
                 boolean isPending = sentInvitations.stream()
-                        .anyMatch(inv -> inv.getReceiveId() == player.getId());
+                        .anyMatch(inv -> inv.getReceiveMem().getId() == player.getId());
                 playerInfo.put("pendingRequest", isPending);
 
                 results.add(playerInfo);

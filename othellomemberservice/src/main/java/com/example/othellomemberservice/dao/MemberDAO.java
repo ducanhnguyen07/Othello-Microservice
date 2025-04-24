@@ -1,5 +1,6 @@
 package com.example.othellomemberservice.dao;
 
+import com.example.othellomemberservice.model.FriendInvitation;
 import com.example.othellomemberservice.model.Member;
 import org.springframework.stereotype.Repository;
 
@@ -242,16 +243,16 @@ public class MemberDAO extends MemberServiceDAO {
         return results;
     }
 
-    public List<Member> getInvitationRequest(Member member) throws SQLException {
+    public List<FriendInvitation> getInvitationRequest(Member member) throws SQLException {
         String sql = """
-            SELECT m.*
-            FROM friendinvitation f
-            JOIN member m ON f.requestId = m.id
+            SELECT f.*
+            FROM member m
+            JOIN friendinvitation f ON m.id = f.receiveId
             WHERE f.status = 'PENDING'
-            	and f.receiveId = ?;
+                and f.receiveId = ?;
         """;
 
-        List<Member> listInvitationRequest = new ArrayList<>();
+        List<FriendInvitation> listInvitationRequest = new ArrayList<>();
 
         try (Connection conn = this.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -259,14 +260,14 @@ public class MemberDAO extends MemberServiceDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Member friend = new Member();
-                    friend.setId(rs.getInt("id"));
-                    friend.setUsername(rs.getString("username"));
-                    friend.setPassword(rs.getString("password"));
-                    friend.setEmail(rs.getString("email"));
-                    friend.setElo(rs.getInt("elo"));
-                    friend.setStatus(rs.getInt("status"));
-                    listInvitationRequest.add(friend);
+                    FriendInvitation invitation = new FriendInvitation();
+                    Member requester = findById(rs.getInt("requestId"));
+                    Member receiver = findById(rs.getInt("receiveId"));
+                    invitation.setId(rs.getInt("id"));
+                    invitation.setRequestMem(requester);
+                    invitation.setReceiveMem(receiver);
+                    invitation.setStatus(rs.getString("status"));
+                    listInvitationRequest.add(invitation);
                 }
             }
         }

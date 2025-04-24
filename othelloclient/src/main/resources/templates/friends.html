@@ -446,19 +446,21 @@
       invitations.forEach(invitation => {
         const invitationItem = document.createElement('li');
         invitationItem.className = 'pending-item';
-        invitationItem.setAttribute('data-invitation-id', invitation.invitationId);
+        // Sử dụng cùng ID ở cả hai nơi để đảm bảo tính nhất quán
+        const invitationId = invitation.id;
+        invitationItem.setAttribute('data-invitation-id', invitationId);
 
         invitationItem.innerHTML = `
-                    <div class="friend-avatar">${invitation.username.charAt(0).toUpperCase()}</div>
-                    <div class="friend-info">
-                        <div class="friend-name">${invitation.username}</div>
-                        <div class="friend-elo">ELO: ${invitation.elo}</div>
-                    </div>
-                    <div class="friend-actions">
-                        <button class="action-btn challenge" onclick="acceptInvitation(${invitation.id})">Chấp nhận</button>
-                        <button class="action-btn remove" onclick="rejectInvitation(${invitation.id})">Từ chối</button>
-                    </div>
-                `;
+                <div class="friend-avatar">${invitation.requestMem.username.charAt(0).toUpperCase()}</div>
+                <div class="friend-info">
+                    <div class="friend-name">${invitation.requestMem.username}</div>
+                    <div class="friend-elo">ELO: ${invitation.requestMem.elo}</div>
+                </div>
+                <div class="friend-actions">
+                    <button class="action-btn challenge" onclick="acceptInvitation(${invitationId})">Chấp nhận</button>
+                    <button class="action-btn remove" onclick="rejectInvitation(${invitationId})">Từ chối</button>
+                </div>
+            `;
 
         pendingList.appendChild(invitationItem);
       });
@@ -468,7 +470,6 @@
               '<li class="empty-message">Lỗi khi tải lời mời kết bạn</li>';
     }
   }
-
   // Search for players
   async function searchPlayers() {
     const searchTerm = document.getElementById('searchInput').value.trim();
@@ -577,31 +578,51 @@
     }
   }
 
-  // Accept a friend invitation
-  function acceptInvitation(invitationId) {
+  // Sửa đổi hàm acceptInvitation
+  async function acceptInvitation(invitationId) {
+    console.log("Đang chấp nhận lời mời có ID:", invitationId);
 
-    // First try with WebSocket for real-time notification
-    const sent = WebSocketService.respondToFriendRequest(requestId, receiveId, 'ACCEPTED');
+    try {
+      // Gửi phản hồi qua WebSocket
+      const sent = WebSocketService.respondToFriendRequest(invitationId, 'ACCEPTED');
 
-    if (!sent) {
-      // Fallback to REST API
-      respondToInvitationViaREST(invitationId, 'ACCEPTED');
-    } else {
-      console.log(0)
-      // Remove invitation from UI
-      const invitationItem = document.querySelector(`.pending-item[data-invitation-id="${invitationId}"]`);
-      if (invitationItem) {
-        invitationItem.remove();
+      if (!sent) {
+        // Sử dụng REST API nếu WebSocket không khả dụng
+        await respondToInvitationViaREST(invitationId, 'ACCEPTED');
       }
 
-      // Refresh the friends list
-      loadFriendsList();
+      // Xóa lời mời khỏi giao diện người dùng ngay lập tức
+      const allPendingItems = document.querySelectorAll('.pending-item');
+      console.log("Tất cả các phần tử lời mời:", allPendingItems.length);
 
-      // Check if no more invitations
+      // Xóa phần tử có button với onclick="acceptInvitation(invitationId)"
+      let removed = false;
+      allPendingItems.forEach(item => {
+        if (item.querySelector(`button[onclick*="acceptInvitation(${invitationId})"]`)) {
+          item.remove();
+          removed = true;
+          console.log("Đã xóa phần tử lời mời");
+        }
+      });
+
+      if (!removed) {
+        console.log("Không tìm thấy phần tử lời mời để xóa");
+      }
+
+      // Cập nhật danh sách bạn bè sau một khoảng thời gian ngắn
+      setTimeout(() => {
+        loadFriendsList();
+        console.log("Đã tải lại danh sách bạn bè");
+      }, 500);
+
+      // Kiểm tra nếu không còn lời mời nào
       const pendingList = document.getElementById('pendingList');
-      if (pendingList.children.length === 0) {
+      if (pendingList.children.length === 0 || pendingList.children.length === 1) {
         pendingList.innerHTML = '<li class="empty-message">Không có lời mời kết bạn nào</li>';
       }
+    } catch (error) {
+      console.error("Lỗi khi chấp nhận lời mời:", error);
+      alert("Có lỗi xảy ra khi chấp nhận lời mời kết bạn");
     }
   }
 

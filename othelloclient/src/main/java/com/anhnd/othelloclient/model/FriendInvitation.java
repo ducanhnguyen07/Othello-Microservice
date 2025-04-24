@@ -4,8 +4,8 @@ import java.util.Date;
 
 public class FriendInvitation {
     private int id;
-    private int requestId;
-    private int receiveId;
+    private Member requestMem;
+    private Member receiveMem;
     private String status;
     private Date timeRequest;
     private Date timeUpdate;
@@ -13,10 +13,10 @@ public class FriendInvitation {
     public FriendInvitation() {
     }
 
-    public FriendInvitation(int id, int requestId, int receiveId, String status, Date timeRequest, Date timeUpdate) {
+    public FriendInvitation(int id, Member requestMem, Member receiveMem, String status, Date timeRequest, Date timeUpdate) {
         this.id = id;
-        this.requestId = requestId;
-        this.receiveId = receiveId;
+        this.requestMem = requestMem;
+        this.receiveMem = receiveMem;
         this.status = status;
         this.timeRequest = timeRequest;
         this.timeUpdate = timeUpdate;
@@ -31,20 +31,20 @@ public class FriendInvitation {
         this.id = id;
     }
 
-    public int getRequestId() {
-        return requestId;
+    public Member getRequestMem() {
+        return requestMem;
     }
 
-    public void setRequestId(int requestId) {
-        this.requestId = requestId;
+    public void setRequestMem(Member requestMem) {
+        this.requestMem = requestMem;
     }
 
-    public int getReceiveId() {
-        return receiveId;
+    public Member getReceiveMem() {
+        return receiveMem;
     }
 
-    public void setReceiveId(int receiveId) {
-        this.receiveId = receiveId;
+    public void setReceiveMem(Member receiveMem) {
+        this.receiveMem = receiveMem;
     }
 
     public String getStatus() {

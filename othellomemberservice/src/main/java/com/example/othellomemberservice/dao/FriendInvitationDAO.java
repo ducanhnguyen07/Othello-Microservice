@@ -1,6 +1,7 @@
 package com.example.othellomemberservice.dao;
 
 import com.example.othellomemberservice.model.FriendInvitation;
+import com.example.othellomemberservice.model.Member;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -19,9 +20,13 @@ public class FriendInvitationDAO extends MemberServiceDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     FriendInvitation invitation = new FriendInvitation();
+                    Member requestMem = new Member();
+                    Member receiveMem = new Member();
+                    requestMem.setId(rs.getInt("requestId"));
+                    receiveMem.setId(rs.getInt("receiveId"));
                     invitation.setId(rs.getInt("id"));
-                    invitation.setRequestId(rs.getInt("requestId"));
-                    invitation.setReceiveId(rs.getInt("receiveId"));
+                    invitation.setRequestMem(requestMem);
+                    invitation.setReceiveMem(receiveMem);
                     invitation.setStatus(rs.getString("status"));
                     invitation.setTimeRequest(rs.getTimestamp("timeRequest"));
                     invitation.setTimeUpdate(rs.getTimestamp("timeUpdate"));
@@ -45,9 +50,14 @@ public class FriendInvitationDAO extends MemberServiceDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     FriendInvitation invitation = new FriendInvitation();
+                    Member requestMem = new Member();
+                    Member receiveMem = new Member();
+                    requestMem.setId(rs.getInt("requestId"));
+                    receiveMem.setId(rs.getInt("receiveId"));
                     invitation.setId(rs.getInt("id"));
-                    invitation.setRequestId(rs.getInt("requestId"));
-                    invitation.setReceiveId(rs.getInt("receiveId"));
+                    invitation.setRequestMem(requestMem);
+                    invitation.setReceiveMem(receiveMem);
+
                     invitation.setStatus(rs.getString("status"));
                     invitation.setTimeRequest(rs.getTimestamp("timeRequest"));
                     invitation.setTimeUpdate(rs.getTimestamp("timeUpdate"));
@@ -71,9 +81,14 @@ public class FriendInvitationDAO extends MemberServiceDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     FriendInvitation invitation = new FriendInvitation();
+                    Member requestMem = new Member();
+                    Member receiveMem = new Member();
                     invitation.setId(rs.getInt("id"));
-                    invitation.setRequestId(rs.getInt("requestId"));
-                    invitation.setReceiveId(rs.getInt("receiveId"));
+                    requestMem.setId(rs.getInt("requestId"));
+                    receiveMem.setId(rs.getInt("receiveId"));
+                    invitation.setId(rs.getInt("id"));
+                    invitation.setRequestMem(requestMem);
+                    invitation.setReceiveMem(receiveMem);
                     invitation.setStatus(rs.getString("status"));
                     invitation.setTimeRequest(rs.getTimestamp("timeRequest"));
                     invitation.setTimeUpdate(rs.getTimestamp("timeUpdate"));
@@ -91,8 +106,9 @@ public class FriendInvitationDAO extends MemberServiceDAO {
         try (Connection conn = this.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setInt(1, invitation.getRequestId());
-            ps.setInt(2, invitation.getReceiveId());
+            ps.setInt(1, invitation.getRequestMem().getId());
+            ps.setInt(2, invitation.getReceiveMem().getId());
+
             ps.setString(3, invitation.getStatus());
             ps.setTimestamp(4, new Timestamp(invitation.getTimeRequest().getTime()));
 

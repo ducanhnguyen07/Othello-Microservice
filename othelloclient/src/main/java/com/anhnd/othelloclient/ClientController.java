@@ -496,7 +496,7 @@ public class ClientController {
 
     @GetMapping("/friend-invitations/{userId}")
     @ResponseBody
-    public List<Member> getInvitationRequest(@PathVariable int userId, HttpSession session) {
+    public List<FriendInvitation> getInvitationRequest(@PathVariable int userId, HttpSession session) {
         // Check if user is logged in
         Member loggedInMember = (Member) session.getAttribute("loggedInMember");
         if (loggedInMember == null) {
@@ -512,11 +512,11 @@ public class ClientController {
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<List<Member>> responseEntity = restTemplate.exchange(
+            ResponseEntity<List<FriendInvitation>> responseEntity = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     request,
-                    new ParameterizedTypeReference<List<Member>>() {}
+                    new ParameterizedTypeReference<List<FriendInvitation>>() {}
             );
 
             return responseEntity.getBody();

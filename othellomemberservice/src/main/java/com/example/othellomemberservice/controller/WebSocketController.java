@@ -37,8 +37,10 @@ public class WebSocketController {
 
         // Create and save the friend invitation
         FriendInvitation invitation = new FriendInvitation();
-        invitation.setRequestId(requesterId);
-        invitation.setReceiveId(receiverId);
+        Member requestMem = memberDAO.findById(requesterId);
+        Member receiveMem = memberDAO.findById(receiverId);
+        invitation.setRequestMem(requestMem);
+        invitation.setReceiveMem(receiveMem);
         invitation.setStatus("PENDING");
         invitation.setTimeRequest(new Date());
 
@@ -84,11 +86,7 @@ public class WebSocketController {
 
         // Update the invitation status
         FriendInvitation invitation = friendInvitationDAO.findById(invitationId);
-        System.out.println(
-                invitationId + " " +
-                invitation.getRequestId() + " "
-                + invitation.getReceiveId() + " "
-                + invitation.getStatus());
+
         if (invitation != null) {
             invitation.setStatus(status);
             invitation.setTimeUpdate(new Date());
@@ -101,14 +99,14 @@ public class WebSocketController {
                 notification.put("type", "FRIEND_REQUEST_RESPONSE");
                 notification.put("invitationId", invitationId);
                 notification.put("status", status);
-                notification.put("responderId", invitation.getReceiveId());
+                notification.put("responderId", invitation.getReceiveMem().getId());
 
                 // Get responder information
-                Member responder = memberDAO.findById(invitation.getReceiveId());
+                Member responder = memberDAO.findById(invitation.getReceiveMem().getId());
                 notification.put("responder", responder);
 
                 messagingTemplate.convertAndSendToUser(
-                        String.valueOf(invitation.getRequestId()),
+                        String.valueOf(invitation.getRequestMem().getId()),
                         "/queue/notifications",
                         notification
                 );
